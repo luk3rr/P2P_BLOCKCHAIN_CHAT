@@ -4,12 +4,16 @@ kotlinxSerialization = "1.8.0"
 coroutines = "1.10.2"
 logging = "7.0.7"
 ktor = "2.3.12"
+crypto = "0.7.0"
 
 [libraries]
 kotlinxSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinxCoroutinesCoreLinuxx64 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-linuxx64", version.ref = "coroutines" }
 kotlinLogging = { module = "io.github.oshai:kotlin-logging-linuxx64", version.ref = "logging" }
 ktorNetwork = { module = "io.ktor:ktor-network", version.ref = "ktor" }
+ktorUtils = { module = "io.ktor:ktor-utils", version.ref = "ktor" }
+crypto = { module = "org.kotlincrypto.hash:md", version.ref = "crypto" }
+
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

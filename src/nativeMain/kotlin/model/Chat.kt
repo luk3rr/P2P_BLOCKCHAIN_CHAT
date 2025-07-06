@@ -12,8 +12,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Chat(
     val text: String,
-    val verificationCode: ByteArray, // 16 bytes
-    val md5Hash: ByteArray          // 16 bytes
+    val verificationCode: ByteArray,
+    val md5Hash: ByteArray
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

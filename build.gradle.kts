@@ -39,6 +39,8 @@ kotlin {
             implementation(libs.kotlinxCoroutinesCoreLinuxx64)
             implementation(libs.kotlinLogging)
             implementation(libs.ktorNetwork)
+            implementation(libs.ktorUtils)
+            implementation(libs.crypto)
         }
     }
 }

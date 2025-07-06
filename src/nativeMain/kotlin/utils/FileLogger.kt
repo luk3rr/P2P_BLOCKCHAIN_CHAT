@@ -11,14 +11,28 @@ private fun closeFileHandler() {
     LoggerManager.closeFile()
 }
 
+enum class LogOutputMode {
+    FILE_ONLY,
+    TERMINAL_ONLY,
+    BOTH
+}
+
 @OptIn(ExperimentalForeignApi::class)
 object LoggerManager {
-    internal var file: CPointer<FILE>? = null
     private val mutex = AtomicInt(0)
+    internal var file: CPointer<FILE>? = null
     internal var initialized = false
+    internal var outputMode: LogOutputMode = LogOutputMode.FILE_ONLY
 
-    fun init(logDir: String?, fileName: String) {
+    fun init(logDir: String?, fileName: String, outputMode: LogOutputMode) {
         if (initialized) return
+
+        this.outputMode = outputMode
+
+        if (outputMode == LogOutputMode.TERMINAL_ONLY) {
+            initialized = true
+            return
+        }
 
         val fullPath = if (!logDir.isNullOrEmpty()) {
             if (mkdir(logDir, (S_IRWXU or S_IRWXG or S_IRWXO).toUInt()) != 0 && errno != EEXIST) {
@@ -49,13 +63,33 @@ object LoggerManager {
         val timestamp = TimeUtils.getCurrentTimestamp()
         val logLine = "$tag @ $timestamp [$level]: $message\n"
 
-        while (!mutex.compareAndSet(0, 1)) {
-            // busy-wait :/
-        }
-
         try {
-            fputs(logLine, file)
-            fflush(file)
+            when (outputMode) {
+                LogOutputMode.FILE_ONLY -> {
+                    while (!mutex.compareAndSet(0, 1)) {
+                        // busy-wait :/
+                    }
+
+                    fputs(logLine, file)
+                    fflush(file)
+                }
+
+                LogOutputMode.TERMINAL_ONLY -> {
+                    fputs(logLine, stdout)
+                    fflush(stdout)
+                }
+
+                LogOutputMode.BOTH -> {
+                    while (!mutex.compareAndSet(0, 1)) {
+                        // busy-wait :/
+                    }
+
+                    fputs(logLine, file)
+                    fflush(file)
+                    fputs(logLine, stdout)
+                    fflush(stdout)
+                }
+            }
         } finally {
             mutex.value = 0
         }
