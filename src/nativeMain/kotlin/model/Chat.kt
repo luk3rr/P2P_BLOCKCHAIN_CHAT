@@ -26,10 +26,9 @@ data class Chat(
     }
 
     override fun hashCode(): Int {
-        var result = text.hashCode()
-        result = 31 * result + verificationCode.contentHashCode()
-        result = 31 * result + md5Hash.contentHashCode()
-        return result
+        return text.hashCode() +
+                verificationCode.contentHashCode() +
+                md5Hash.contentHashCode()
     }
 }
 

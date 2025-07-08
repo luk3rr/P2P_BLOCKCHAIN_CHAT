@@ -23,9 +23,8 @@ class MessageCodec {
         const val ARCHIVE_RESPONSE_CODE: Byte = 0x4
         const val NOTIFICATION_MESSAGE_CODE: Byte = 0x5
         const val MAX_NOTIFICATION_SIZE: Int = 255
-        const val MAX_PEER_LIST_SIZE: Int = 255 // Limite de IPs na lista de pares
-        const val MAX_CHAT_SIZE: Int = 255 // Limite de tamanho do texto do chat
-        const val IPv4_LENGTH: Int = 4
+        const val MAX_CHAT_SIZE: Int = 255
+        const val IPV4_LENGTH: Int = 4
 
         val CHAR_ENCODING: Charset = Charsets.UTF_8
     }
@@ -42,11 +41,11 @@ class MessageCodec {
                 is ArchiveRequest -> writeByte(ARCHIVE_REQUEST_CODE)
                 is PeerList -> {
                     writeByte(PEER_LIST_CODE)
-                    writeInt(message.peerIps.size) // Ktor escreve em Big Endian por padrão
+                    writeInt(message.peerIps.size)
                     message.peerIps.forEach { ipString ->
                         val ipBytes = ipString.split('.').map { it.toInt().toByte() }.toByteArray()
 
-                        if (ipBytes.size == 4) {
+                        if (ipBytes.size == IPV4_LENGTH) {
                             writeFully(ipBytes)
                         }
                     }
@@ -122,8 +121,6 @@ class MessageCodec {
         val verificationCode = ByteArray(VERIFICATION_CODE_LENGTH).also { byteReader.readFully(it) }
         val md5Hash = ByteArray(MD5_HASH_LENGTH).also { byteReader.readFully(it) }
 
-        logger.debug { "Deserializando chat: texto='${textBytes.decodeToString()}', código=${verificationCode.joinToString(", ")}, hash=${md5Hash.joinToString(", ")}" }
-
         return Chat(
             text = textBytes.decodeToString(),
             verificationCode = verificationCode,
@@ -134,7 +131,7 @@ class MessageCodec {
     private suspend fun deserializePeerList(byteReader: ByteReadChannel): PeerList {
         val peerCount = byteReader.readInt() // Ktor lê em Big Endian por padrão
         val ips = List(peerCount) {
-            val ipBytes = ByteArray(IPv4_LENGTH).also { byteReader.readFully(it) }
+            val ipBytes = ByteArray(IPV4_LENGTH).also { byteReader.readFully(it) }
             ipBytes.joinToString(".") { (it.toInt() and 0xFF).toString() }
         }
         return PeerList(ips)

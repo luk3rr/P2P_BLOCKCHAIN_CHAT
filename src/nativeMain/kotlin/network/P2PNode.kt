@@ -128,7 +128,7 @@ class P2PNode(
                     }
 
                     is NotificationMessage -> {
-                        //logger.info { "Notificação recebida: ${message.notification}" }
+                        logger.info { "Notificação recebida: ${message.notification}" }
                     }
                 }
             }
