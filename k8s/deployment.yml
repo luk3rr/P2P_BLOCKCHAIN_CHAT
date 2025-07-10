@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p2p-chat-node
+  labels:
+    app: p2p-chat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: p2p-chat
+  template:
+    metadata:
+      labels:
+        app: p2p-chat
+    spec:
+      containers:
+        - name: p2p-node-container
+          image: ${IMAGE_NAME}:${IMAGE_TAG}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 51511
+              name: p2p-tcp
+          args:
+            - "0.0.0.0" # Listen on all interfaces
+            - "51511"
+            - "--server"
