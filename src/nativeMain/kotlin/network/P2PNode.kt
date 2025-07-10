@@ -28,6 +28,9 @@ class P2PNode(
     private val peersLock = Mutex()
     private val logger = Logger("P2PNode")
 
+    private val archiveResponses = mutableMapOf<String, List<Chat>>() // peerIp -> chain
+    private val archiveResponsesLock = Mutex()
+
     /**
      * Ponto de entrada. Inicia o nó, conectando-se ao peer inicial (se houver)
      * e começando a ouvir por novas conexões e a descobrir outros peers.
@@ -125,10 +128,14 @@ class P2PNode(
 
                     is ArchiveResponse -> {
                         blockchain.replaceChain(message.history)
+
+                        archiveResponsesLock.withLock {
+                            archiveResponses[peerIp] = message.history
+                        }
                     }
 
                     is NotificationMessage -> {
-                        logger.info { "Notificação recebida: ${message.notification}" }
+                        //logger.info { "Notificação recebida: ${message.notification}" }
                     }
                 }
             }
@@ -201,6 +208,35 @@ class P2PNode(
         logger.info { "Novo chat minerado: ${newChat.text}" }
 
         val updatedHistory = blockchain.getChain()
-        broadcast(ArchiveResponse(updatedHistory))
+
+        repeat(10) { attempt ->
+            broadcast(ArchiveResponse(updatedHistory))
+
+            delay(1000)
+
+            broadcast(ArchiveRequest)
+
+            delay(2000)
+
+            val confirmedCount = archiveResponsesLock.withLock {
+                archiveResponses.values.count { chain ->
+                    chain.contains(newChat)
+                }
+            }
+
+            val totalPeers = peersLock.withLock { activePeers.size }
+            val majorityReached = confirmedCount >= (totalPeers / 2 + 1)
+
+            if (majorityReached) {
+                logger.info { "Bloco aceito por $confirmedCount de $totalPeers peers." }
+                return
+            } else {
+                logger.warn { "Bloco ainda não foi aceito pela maioria (${confirmedCount}/$totalPeers). Nova tentativa ($attempt)..." }
+            }
+
+            delay(1000)
+        }
+
+        logger.error { "Falha ao confirmar bloco na maioria dos peers após múltiplas tentativas." }
     }
 }

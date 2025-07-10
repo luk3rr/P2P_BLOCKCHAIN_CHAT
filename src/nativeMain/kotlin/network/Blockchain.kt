@@ -69,6 +69,8 @@ class Blockchain(private val messageCodec: MessageCodec) {
             val chatsToHash = subHistory.subList(startIndex, subHistory.size)
             val expectedHash = calculateMd5ForValidation(chatsToHash)
 
+            logger.debug { "TOTAL CHATS: ${history.size}, START INDEX: ${startIndex}, PREVIOUS CHATS COUNT: ${chatsToHash.size}" }
+
             if (!lastChat.md5Hash.contentEquals(expectedHash)) {
                 logger.error { "Erro de validação no chat #${i}: O hash MD5 não corresponde ao conteúdo." }
                 logger.debug { "Hash esperado: ${expectedHash.joinToString()}" }
@@ -107,6 +109,8 @@ class Blockchain(private val messageCodec: MessageCodec) {
     ): Chat = withContext(Dispatchers.Default) {
         val startIndex = max(0, currentChain.size - MINING_PREVIOUS_CHATS_COUNT)
         val previousChats = currentChain.subList(startIndex, currentChain.size)
+
+        logger.debug { "TOTAL CHATS: ${currentChain.size}, START INDEX: ${startIndex}, PREVIOUS CHATS COUNT: ${previousChats.size}" }
 
         var attempts = 0L
         while (true) {
