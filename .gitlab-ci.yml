@@ -1,0 +1,46 @@
+include:
+  - project: 'personal/projects/infrastructure-lives'
+    file: '/pipeline/backend.yml'
+    ref: main
+
+variables:
+  SERVICE_NAME: "p2p-chat"
+  SERVICE_GROUP: "personal/projects"
+  PROJECT_NAME: "P2P_BLOCKCHAIN_CHAT"
+  APP_DEPLOY_MANIFEST_PATH: "k8s/deployment.yml"
+  BUILD_CACHE_PATH: "/cache/.gradle"
+
+cache:
+  paths:
+    - /cache/.gradle/wrapper/
+    - /cache/.gradle/caches/
+
+stages:
+  - test
+  - build
+  - deploy
+
+unit_test:
+  stage: test
+  image: gradle:8-jdk17
+  script:
+    - ./gradlew -g $BUILD_CACHE_PATH --build-cache build
+  artifacts:
+    paths:
+      - build
+  cache:
+    paths:
+      - $BUILD_CACHE_PATH
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_MERGE_REQUEST_ID'
+      when: always
+    - when: never
+      allow_failure: false
+
+build_migration:
+  rules:
+    - when: never
+
+deploy_migration:
+  rules:
+    - when: never

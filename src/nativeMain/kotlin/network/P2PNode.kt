@@ -173,7 +173,6 @@ class P2PNode(
         val peersToBroadcast = peersLock.withLock { activePeers.values.toList() }
 
         if (peersToBroadcast.isEmpty()) {
-            logger.warn { "Nenhum peer conectado para transmitir a mensagem ${message::class.simpleName}." }
             return
         }
 
