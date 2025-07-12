@@ -1,9 +1,9 @@
+<p align="center" width="100%">
+  <img align="center" width="30%" src="./docs/img/logo.png"> 
+</p>
+
 # P2P Blockchain Chat
-
-## Descrição
-
-Este projeto implementa um sistema de chat P2P (par-a-par) em Kotlin Native. A integridade e a ordem das mensagens são garantidas por uma estrutura de blockchain distribuída, onde novos chats são adicionados através de um mecanismo de mineração (Proof-of-Work).
-
+Este projeto implementa um sistema de chat P2P (par-a-par) em Kotlin Native. A integridade e a ordem das mensagens são garantidas por uma estrutura de blockchain distribuída, onde novos chats são adicionados através de um mecanismo de mineração (Proof-of-Work). 
 Este programa é o produto de um trabalho prático da disciplina de Redes de Computadores do [Departamento de Ciência da Computação da UFMG](https://dcc.ufmg.br).
 
 O nó P2P oferece:
