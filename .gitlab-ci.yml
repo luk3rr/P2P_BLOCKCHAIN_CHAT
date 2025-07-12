@@ -44,3 +44,7 @@ build_migration:
 deploy_migration:
   rules:
     - when: never
+
+deploy_migration_rollback:
+  rules:
+    - when: never
