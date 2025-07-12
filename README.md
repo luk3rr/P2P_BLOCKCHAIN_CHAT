@@ -38,15 +38,34 @@ O executável será gerado em `build/bin/native/releaseExecutable/p2pblockchainc
 ### Formato do Comando de Execução
 
 ```bash
-./p2pblockchainchat.kexe <host_ip> <porta> <identificador_grupo> [ip_peer_inicial]
+./p2pblockchainchat.kexe [opções]
 ```
 
 #### Parâmetros
 
-* `<host_ip>`: O endereço IP no qual o nó deve ouvir por conexões. Use `0.0.0.0` para ouvir em todas as interfaces (recomendado para servidores).
-* `<porta>`: A porta de rede para toda a comunicação (ex: `51511`).
-* `<identificador_grupo>`: Uma string que identifica seu grupo (ex: "Grupo Turing - Ada Lovelace").
-* `[ip_peer_inicial]`: (Opcional) O endereço IP de um nó já na rede para se conectar e iniciar a descoberta de outros pares.
+##### --host-ip=\<ip>
+- Descrição: O endereço IP no qual o nó deve ouvir por conexões.
+- Padrão: 0.0.0.0 (ouve em todas as interfaces de rede).
+
+##### --port=\<porta>
+- Descrição: A porta de rede para toda a comunicação TCP.
+- Padrão: 51511.
+
+##### --id=\<identificador>
+- Descrição: Uma string que identifica seu grupo ou nó. Obrigatório para o modo de operação normal (não-servidor).
+- Padrão: P2P-Node.
+
+##### --peer=\<ip_peer>
+- Descrição: (Opcional) O endereço IP de um nó já na rede para se conectar e iniciar o processo de descoberta.
+- Padrão: Nenhum.
+
+##### --advertised-ip=<ip_publico>
+- Descrição: (Opcional) O endereço IP "público" do nó, usado para evitar que ele se conecte a si mesmo em ambientes com NAT ou Load Balancers (como Kubernetes).
+- Padrão: Nenhum.
+
+##### --server
+- Descrição: (Flag) Quando presente, executa o nó em modo servidor: sem interação via terminal para o usuário e com logs sendo impressos diretamente na console.
+- Padrão: Desativado.
 
 -----
 
@@ -67,26 +86,33 @@ sudo ip addr add 127.0.0.3/8 dev lo
 Este nó não se conecta a ninguém, apenas espera por conexões.
 
 ```bash
-./build/bin/native/releaseExecutable/p2pblockchainchat.kexe 0.0.0.0 51511 "Grupo Teste 1"
+./p2pblockchainchat.kexe --id="Grupo-Alfa"
 ```
 
 **3. Inicie o Segundo Nó (Terminal 2):**
 Este nó se conecta ao nó semente para entrar na rede.
 
 ```bash
-./build/bin/native/releaseExecutable/p2pblockchainchat.kexe 0.0.0.0 51511 "Grupo Teste 2" 127.0.0.1
+./p2pblockchainchat.kexe --host-ip=127.0.0.2 --id="Grupo-Beta" --peer=127.0.0.1
 ```
 
-#### Conexão com a Rede Principal da Disciplina
-
-Para conectar à rede oficial, use o endereço do servidor do professor como peer inicial. Lembre-se que seu `host_ip` deve ser `0.0.0.0` para que outros possam se conectar a você.
+**3. Inicie o Terceiro Nó (Terminal 3):**
+Este nó se conecta ao nó semente para entrar na rede.
 
 ```bash
-./build/bin/native/releaseExecutable/p2pblockchainchat.kexe 0.0.0.0 51511 "Seu Nome ou Grupo" pugna.snes.dcc.ufmg.br
+./p2pblockchainchat.kexe --host-ip=127.0.0.3 --id="Grupo-Gama" --peer=127.0.0.1
 ```
 
-### Interação
+#### Execução em Servidor / Kubernetes
+Este comando executa o nó em modo "servidor", ideal para um nó semente ou um nó rodando em um ambiente como o k3s.
 
+```bash
+./p2pblockchainchat.kexe --server --advertised-ip=<IP_EXTERNO_DO_SERVICE>
+```
+
+---
+
+### Interação
 Após o nó iniciar e se conectar à rede:
 
 * **Para enviar uma mensagem:** Simplesmente digite a mensagem e pressione Enter. O processo de mineração será iniciado.

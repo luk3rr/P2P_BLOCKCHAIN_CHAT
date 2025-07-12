@@ -11,6 +11,8 @@ package model
 data class AppConfig(
     val hostIp: String,
     val port: Int = 51511,
+    val groupIdentifier: String,
     val initialPeerIp: String? = null,
-    val groupIdentifier: String
+    val advertisedIp: String? = null,
+    val isServerMode: Boolean = false
 )

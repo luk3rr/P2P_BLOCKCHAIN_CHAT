@@ -24,6 +24,7 @@ spec:
             - containerPort: 51511
               name: p2p-tcp
           args:
-            - "192.168.1.233"
-            - "51511"
+            - "--host-ip=0.0.0.0"
+            - "--port=51511"
             - "--server"
+            - "--advertised-ip=192.168.1.233"

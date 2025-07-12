@@ -36,7 +36,11 @@ class P2PNode(
      * e começando a ouvir por novas conexões e a descobrir outros peers.
      */
     fun start() {
-        logger.info { "Nó P2P iniciando em ${config.hostIp}:${config.port}..." }
+        if (config.isServerMode) {
+            logger.info { "Iniciando nó P2P em modo servidor..." }
+        } else {
+            logger.info { "Iniciando nó P2P em modo cliente..." }
+        }
 
         scope.launch { listenForConnections() }
         scope.launch { sendPeriodicPeerRequests() }
@@ -54,7 +58,7 @@ class P2PNode(
     private suspend fun listenForConnections() = withContext(Dispatchers.IO) {
         val selectorManager = SelectorManager(Dispatchers.Default)
         val serverSocket = aSocket(selectorManager).tcp().bind(config.hostIp, config.port)
-        logger.info { "Ouvindo por conexões em ${config.hostIp}:${config.port}" }
+        logger.info { "Ouvindo por conexões em ${config.advertisedIp ?: config.hostIp}:${config.port}" }
 
         while (true) {
             val socket = serverSocket.accept()
@@ -71,9 +75,7 @@ class P2PNode(
      */
     private suspend fun connectToPeer(peerIp: String) {
         peersLock.withLock {
-            if (peerIp == config.hostIp || activePeers.containsKey(peerIp)) {
-                return
-            }
+            if (peerIp in setOf(config.hostIp, config.advertisedIp) || activePeers.containsKey(peerIp)) return
         }
 
         try {
